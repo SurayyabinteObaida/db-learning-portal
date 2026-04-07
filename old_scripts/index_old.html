@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Design — Exam Preparation Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FAF7F2;
+    --warm-white: #FFFFFF;
+    --charcoal: #1A1A1A;
+    --mid-gray: #555555;
+    --light-gray: #E8E4DE;
+    --border: #D4CEC6;
+    --accent: #C0392B;
+    --accent-light: #F5EAE8;
+    --accent-mid: #E8B4AE;
+    --amber: #D4840A;
+    --amber-light: #FDF3E0;
+    --ink: #2C2C2C;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.13);
+    --radius: 4px;
+    --radius-lg: 8px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: block; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--warm-white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    letter-spacing: 0.02em;
+  }
+  .logo span { color: var(--accent); }
+  .back-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--mid-gray);
+    padding: 6px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: none;
+  }
+  .back-btn:hover { border-color: var(--charcoal); color: var(--charcoal); }
+  .back-btn.visible { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* ── LANDING ── */
+  .landing-hero {
+    padding: 72px 48px 48px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.15;
+    color: var(--charcoal);
+    margin-bottom: 20px;
+  }
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--mid-gray);
+    font-weight: 400;
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+  .exam-notice {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--amber-light);
+    border: 1px solid #E8C07A;
+    border-left: 3px solid var(--amber);
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    color: var(--amber);
+    font-weight: 500;
+    margin-bottom: 56px;
+  }
+
+  .topics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 48px 80px;
+  }
+
+  .topic-card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .topic-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .topic-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--accent-mid); }
+  .topic-card:hover::before { transform: scaleX(1); }
+
+  .card-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+  .card-desc {
+    font-size: 0.875rem;
+    color: var(--mid-gray);
+    line-height: 1.65;
+    margin-bottom: 24px;
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+  .card-arrow {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mid-gray);
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+  .topic-card:hover .card-arrow { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* ── MODE SELECTION ── */
+  .mode-screen {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 56px 48px;
+  }
+  .mode-breadcrumb {
+    font-size: 0.8rem;
+    color: var(--mid-gray);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mode-breadcrumb span { color: var(--accent); font-weight: 600; }
+  .mode-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+  .mode-subtitle {
+    color: var(--mid-gray);
+    font-size: 0.95rem;
+    margin-bottom: 48px;
+  }
+  .mode-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .mode-card {
+    background: var(--warm-white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.22s;
+  }
+  .mode-card:hover { border-color: var(--accent); background: var(--accent-light); transform: translateX(4px); }
+  .mode-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--accent-light);
+    border: 1px solid var(--accent-mid);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.3rem;
+  }
+  .mode-info { flex: 1; }
+  .mode-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+    color: var(--charcoal);
+  }
+  .mode-desc { font-size: 0.875rem; color: var(--mid-gray); }
+  .mode-chev { color: var(--border); font-size: 1.2rem; }
+  .mode-card:hover .mode-chev { color: var(--accent); }
+
+  /* ── THEORY ── */
+  .theory-layout {
+    display: flex;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 48px;
+    gap: 40px;
+  }
+  .theory-nav {
+    width: 220px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    height: fit-content;
+  }
+  .theory-nav-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    margin-bottom: 12px;
+  }
+  .theory-nav-item {
+    display: block;
+    padding: 8px 12px;
+    font-size: 0.875rem;
+    color: var(--mid-gray);
+    cursor: pointer;
+    border-left: 2px solid var(--border);
+    transition: all 0.2s;
+    margin-bottom: 2px;
+    text-decoration: none;
+  }
+  .theory-nav-item:hover, .theory-nav-item.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+  .theory-content { flex: 1; }
+
+  .theory-section { display: none; }
+  .theory-section.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-header {
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  .definition-block {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+  }
+  .definition-block .term {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 6px;
+    letter-spacing: 0.03em;
+  }
+  .definition-block p { font-size: 0.95rem; line-height: 1.7; color: var(--ink); }
+
+  .concept-check {
+    background: var(--amber-light);
+    border: 1px solid #E8C07A;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 28px 0;
+  }
+  .concept-check-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 8px;
+  }
+  .concept-check p { font-size: 0.93rem; color: #7A5500; line-height: 1.65; }
+
+  .step-guide {
+    counter-reset: step;
+    margin: 24px 0;
+  }
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-body { flex: 1; }
+  .step-title { font-weight: 700; margin-bottom: 4px; font-size: 0.95rem; }
+  .step-desc { font-size: 0.9rem; color: var(--mid-gray); line-height: 1.65; }
+
+  h3.sub-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 28px 0 14px;
+    color: var(--charcoal);
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    margin: 20px 0;
+  }
+  .data-table th {
+    background: var(--charcoal);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+  }
+  .data-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink);
+  }
+  .data-table tr:nth-child(even) td { background: var(--cream); }
+  .data-table .pk { color: var(--accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+  .data-table .fk { color: var(--amber); font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid;
+  }
+  .pill-red { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); }
+  .pill-amber { background: var(--amber-light); color: var(--amber); border-color: #E8C07A; }
+  .pill-gray { background: var(--light-gray); color: var(--mid-gray); border-color: var(--border); }
+
+  .theory-nav-next {
+    margin-top: 48px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: var(--radius);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #A93226; }
+  .btn-secondary {
+    background: none;
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    padding: 11px 28px;
+    border-radius: var(--radius);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: var(--accent-light); }
+
+  /* ── PRACTICE ── */
+  .practice-layout {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 48px;
+  }
+  .practice-header { margin-bottom: 36px; }
+  .scenarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+  }
+  .scenario-card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px 22px;
+    cursor: pointer;
+    transition: all 0.22s;
+  }
+  .scenario-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .scenario-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .scenario-title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    margin-bottom: 8px;
+    line-height: 1.35;
+  }
+  .scenario-desc { font-size: 0.82rem; color: var(--mid-gray); line-height: 1.55; }
+
+  /* ── ANIMATION SOLUTION ── */
+  .anim-screen {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 48px;
+  }
+  .anim-header { margin-bottom: 32px; }
+  .anim-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 900; margin-bottom: 6px; }
+  .anim-sub { font-size: 0.9rem; color: var(--mid-gray); }
+
+  .step-tracker {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .step-dot {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--warm-white);
+    color: var(--mid-gray);
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .step-dot.completed { background: var(--accent); border-color: var(--accent); color: white; }
+  .step-dot.current { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+  .step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    min-width: 20px;
+    transition: background 0.3s;
+  }
+  .step-line.done { background: var(--accent); }
+
+  .anim-stage {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    min-height: 260px;
+    padding: 32px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stage-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .stage-content { animation: fadeIn 0.4s ease; }
+
+  .anim-explanation {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin-bottom: 28px;
+    font-size: 0.93rem;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+  .anim-explanation strong { color: var(--charcoal); }
+
+  .anim-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .step-label-text { font-size: 0.875rem; color: var(--mid-gray); }
+  .step-label-text strong { color: var(--charcoal); }
+
+  /* ── QUIZ ── */
+  .quiz-layout {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 48px;
+  }
+  .quiz-header { margin-bottom: 36px; }
+  .quiz-progress-bar {
+    height: 4px;
+    background: var(--light-gray);
+    border-radius: 2px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .quiz-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+  .quiz-progress-text { font-size: 0.8rem; color: var(--mid-gray); margin-bottom: 32px; }
+
+  .quiz-q-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.35;
+  }
+  .quiz-q-context {
+    font-size: 0.9rem;
+    color: var(--mid-gray);
+    margin-bottom: 24px;
+    line-height: 1.65;
+  }
+
+  .quiz-canvas-wrap {
+    background: var(--warm-white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .canvas-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+    background: var(--cream);
+    flex-wrap: wrap;
+  }
+  .canvas-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding-right: 8px;
+    border-right: 1px solid var(--border);
+    margin-right: 4px;
+  }
+  .canvas-toolbar-group:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+  .canvas-toolbar button {
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 500;
+    transition: all 0.15s;
+    white-space: nowrap;
+    color: var(--charcoal);
+  }
+  .canvas-toolbar button:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .canvas-toolbar button.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .canvas-toolbar button.active:hover { background: #A93226; }
+  .canvas-toolbar-sep { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
+  .canvas-label { font-size: 0.7rem; color: var(--mid-gray); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 2px; flex-shrink: 0; }
+  .canvas-color-row { display: flex; align-items: center; gap: 4px; }
+  .canvas-color-swatch {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+    flex-shrink: 0;
+  }
+  .canvas-color-swatch:hover, .canvas-color-swatch.active { border-color: var(--charcoal); transform: scale(1.2); }
+  .canvas-stroke-label { font-size: 0.7rem; color: var(--mid-gray); font-weight: 600; }
+  #quizCanvas {
+    display: block;
+    cursor: crosshair;
+    background: #FFFFFF;
+  }
+  .canvas-text-input-overlay {
+    position: absolute;
+    border: 1.5px dashed var(--accent);
+    background: rgba(255,255,255,0.9);
+    padding: 2px 4px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14px;
+    color: var(--charcoal);
+    outline: none;
+    min-width: 80px;
+    z-index: 10;
+    resize: none;
+    overflow: hidden;
+  }
+  .quiz-textbox {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.93rem;
+    color: var(--charcoal);
+    resize: vertical;
+    min-height: 90px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 20px;
+    background: white;
+  }
+  .quiz-textbox:focus { border-color: var(--accent); }
+  .quiz-textbox::placeholder { color: #BBBBBB; }
+
+  .quiz-submit { width: 100%; }
+
+  /* ── SOLUTION REVEAL ── */
+  .solution-block {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px 32px;
+    margin-top: 28px;
+    animation: fadeIn 0.5s ease;
+  }
+  .solution-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .solution-block p, .solution-block li { font-size: 0.93rem; line-height: 1.7; color: var(--ink); }
+  .solution-block ul { padding-left: 20px; margin: 10px 0; }
+  .solution-block li { margin-bottom: 6px; }
+
+  .quiz-nav-row { display: flex; gap: 12px; margin-top: 16px; }
+
+  /* ── AI FEEDBACK ── */
+  .ai-feedback-block {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin-top: 20px;
+    animation: fadeIn 0.4s ease;
+  }
+  .ai-feedback-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .ai-feedback-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--charcoal);
+    color: white;
+    padding: 3px 9px;
+    border-radius: 2px;
+  }
+  .ai-feedback-score {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid;
+  }
+  .score-high { background: #EAF5EA; color: #2E7D32; border-color: #A5D6A7; }
+  .score-mid  { background: var(--amber-light); color: var(--amber); border-color: #E8C07A; }
+  .score-low  { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); }
+  .ai-feedback-text {
+    font-size: 0.93rem;
+    line-height: 1.75;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+  .ai-feedback-text strong { color: var(--charcoal); }
+  .ai-loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 0;
+    color: var(--mid-gray);
+    font-size: 0.9rem;
+  }
+  .ai-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .key-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    align-items: center;
+  }
+  .key-input {
+    flex: 1;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 9px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--charcoal);
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .key-input:focus { border-color: var(--accent); }
+  .key-label {
+    font-size: 0.78rem;
+    color: var(--mid-gray);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  /* ── RESULT SCREEN ── */
+  .result-screen {
+    max-width: 620px;
+    margin: 80px auto;
+    padding: 0 48px;
+    text-align: center;
+  }
+  .result-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .result-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 14px; }
+  .result-sub { color: var(--mid-gray); font-size: 0.95rem; margin-bottom: 40px; line-height: 1.7; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    header { padding: 0 20px; }
+    .landing-hero, .topics-grid, .mode-screen, .theory-layout, .practice-layout, .anim-screen, .quiz-layout { padding-left: 20px; padding-right: 20px; }
+    .theory-layout { flex-direction: column; }
+    .theory-nav { width: 100%; position: static; }
+  }
+
+  /* ── TABLE ANIMATIONS ── */
+  .highlight-row { animation: highlightPulse 1s ease; }
+  @keyframes highlightPulse { 0% { background: #F5EAE8; } 100% { background: transparent; } }
+
+  .table-anim-wrapper { overflow-x: auto; }
+
+  .arrow-indicator {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+
+  .fd-box {
+    display: inline-block;
+    background: var(--accent-light);
+    border: 1px solid var(--accent-mid);
+    border-radius: var(--radius);
+    padding: 6px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 500;
+    margin: 4px;
+  }
+  .fd-arrow {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--charcoal);
+    font-size: 1.1rem;
+    margin: 0 4px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--charcoal);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">DB<span>Prep</span> — Midterm 2025</div>
+  <button class="back-btn" id="backBtn" onclick="goBack()">&#8592; Back</button>
+</header>
+
+<!-- SCREEN: LANDING -->
+<div class="screen active" id="landingScreen">
+  <div class="landing-hero">
+    <div class="hero-eyebrow">Midterm Examination — Preparation Portal</div>
+    <h1 class="hero-title">Master Database Design<br>Before the Exam</h1>
+    <p class="hero-sub">Three focused topics. Three modes of study — theory, practice, and self-assessment. Work through each at your own pace.</p>
+    <div class="exam-notice">
+      Exam in 2 days &nbsp;|&nbsp; Cover all three topics &nbsp;|&nbsp; Use quiz mode to self-test
+    </div>
+  </div>
+  <div class="topics-grid">
+    <div class="topic-card" onclick="selectTopic('er')">
+      <div class="card-number">TOPIC 01</div>
+      <div class="card-title">Entity Relationship &amp; Enhanced ER Modelling</div>
+      <div class="card-desc">Entities, attributes, relationships, cardinality, specialisation, generalisation, and aggregation.</div>
+      <div class="card-tags">
+        <span class="tag">ERD</span>
+        <span class="tag">EER</span>
+        <span class="tag">Specialisation</span>
+      </div>
+      <div class="card-arrow">&#8594;</div>
+    </div>
+    <div class="topic-card" onclick="selectTopic('rm')">
+      <div class="card-number">TOPIC 02</div>
+      <div class="card-title">Relational Modelling</div>
+      <div class="card-desc">Relations, tuples, domains, keys (primary, foreign, candidate), integrity constraints, and schema mapping.</div>
+      <div class="card-tags">
+        <span class="tag">Relations</span>
+        <span class="tag">Keys</span>
+        <span class="tag">Integrity</span>
+      </div>
+      <div class="card-arrow">&#8594;</div>
+    </div>
+    <div class="topic-card" onclick="selectTopic('dn')">
+      <div class="card-number">TOPIC 03</div>
+      <div class="card-title">Data Normalisation</div>
+      <div class="card-desc">Functional dependencies, 1NF through BCNF, anomalies, decomposition, and lossless joins.</div>
+      <div class="card-tags">
+        <span class="tag">1NF / 2NF</span>
+        <span class="tag">3NF / BCNF</span>
+        <span class="tag">FD</span>
+      </div>
+      <div class="card-arrow">&#8594;</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: MODE SELECT -->
+<div class="screen" id="modeScreen">
+  <div class="mode-screen">
+    <div class="mode-breadcrumb">Topics <span>&#8250;</span> <span id="modeBreadcrumb"></span></div>
+    <h2 class="mode-title" id="modeTitle"></h2>
+    <p class="mode-subtitle">Choose how you would like to study this topic today.</p>
+    <div class="mode-options">
+      <div class="mode-card" onclick="selectMode('theory')">
+        <div class="mode-icon">T</div>
+        <div class="mode-info">
+          <div class="mode-name">Theoretical Preparation</div>
+          <div class="mode-desc">Definitions, step-by-step guidance, and concept checks with justification.</div>
+        </div>
+        <div class="mode-chev">&#8250;</div>
+      </div>
+      <div class="mode-card" onclick="selectMode('practice')">
+        <div class="mode-icon">P</div>
+        <div class="mode-info">
+          <div class="mode-name">Practice Solutions</div>
+          <div class="mode-desc">Seven real scenarios with animated, step-by-step walkthroughs.</div>
+        </div>
+        <div class="mode-chev">&#8250;</div>
+      </div>
+      <div class="mode-card" onclick="selectMode('quiz')">
+        <div class="mode-icon">Q</div>
+        <div class="mode-info">
+          <div class="mode-name">Attempt Quiz</div>
+          <div class="mode-desc">Write or draw your answers. Get instant AI feedback on what you got right and wrong.</div>
+        </div>
+        <div class="mode-chev">&#8250;</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: THEORY -->
+<div class="screen" id="theoryScreen">
+  <div class="theory-layout">
+    <nav class="theory-nav">
+      <div class="theory-nav-title">Sections</div>
+      <div id="theoryNavItems"></div>
+    </nav>
+    <div class="theory-content" id="theoryContent"></div>
+  </div>
+</div>
+
+<!-- SCREEN: PRACTICE -->
+<div class="screen" id="practiceScreen">
+  <div class="practice-layout">
+    <div class="practice-header">
+      <div class="section-label" id="practiceTopicLabel"></div>
+      <h2 class="mode-title">Practice Scenarios</h2>
+      <p class="mode-subtitle">Select a scenario to begin an animated walkthrough. Each one reinforces the same steps.</p>
+    </div>
+    <div class="scenarios-grid" id="scenariosGrid"></div>
+  </div>
+</div>
+
+<!-- SCREEN: ANIMATION -->
+<div class="screen" id="animScreen">
+  <div class="anim-screen">
+    <div class="anim-header">
+      <div class="section-label" id="animTopicLabel"></div>
+      <div class="anim-title" id="animTitle"></div>
+      <div class="anim-sub" id="animSub"></div>
+    </div>
+    <div class="step-tracker" id="stepTracker"></div>
+    <div class="anim-stage">
+      <div class="stage-label" id="stageLabel"></div>
+      <div class="stage-content" id="stageContent"></div>
+    </div>
+    <div class="anim-explanation" id="animExplanation"></div>
+    <div class="anim-controls">
+      <div class="step-label-text" id="stepLabelText"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-secondary" id="prevStepBtn" onclick="prevStep()">Previous</button>
+        <button class="btn-primary" id="nextStepBtn" onclick="nextStep()">Next Step</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: QUIZ -->
+<div class="screen" id="quizScreen">
+  <div class="quiz-layout">
+    <div class="quiz-header">
+      <div class="section-label" id="quizTopicLabel"></div>
+      <h2 class="mode-title">Self-Assessment Quiz</h2>
+      <div style="margin-top:16px;">
+        <div class="key-label">Anthropic API Key — for AI feedback on your answers (optional)</div>
+        <div class="key-input-row">
+          <input class="key-input" type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" />
+          <button class="btn-secondary" style="padding:9px 16px;font-size:0.82rem;white-space:nowrap" onclick="saveKey()">Save Key</button>
+        </div>
+        <div id="keyStatus" style="font-size:0.78rem;color:var(--mid-gray);margin-top:-14px;margin-bottom:4px;"></div>
+      </div>
+    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
+    <div class="quiz-progress-text" id="quizProgressText"></div>
+    <div id="quizQuestionArea"></div>
+  </div>
+</div>
+
+<!-- SCREEN: RESULT -->
+<div class="screen" id="resultScreen">
+  <div class="result-screen">
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-title">Quiz Complete</div>
+    <p class="result-sub" id="resultSub"></p>
+    <button class="btn-primary" style="margin-right:12px" onclick="showScreen('landingScreen')">Back to Topics</button>
+    <button class="btn-secondary" onclick="restartQuiz()">Retry Quiz</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let currentTopic = null;
+let currentMode = null;
+let currentAnimScenario = null;
+let currentAnimStep = 0;
+let currentQuizIndex = 0;
+
+let screenHistory = [];
+
+const TOPIC_NAMES = {
+  er: 'ER & Enhanced ER Modelling',
+  rm: 'Relational Modelling',
+  dn: 'Data Normalisation'
+};
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  document.getElementById('backBtn').className = id === 'landingScreen' ? 'back-btn' : 'back-btn visible';
+}
+
+function goBack() {
+  if (screenHistory.length > 0) {
+    const prev = screenHistory.pop();
+    showScreen(prev);
+    if (prev === 'landingScreen') screenHistory = [];
+  }
+}
+
+function navigate(to) {
+  const current = document.querySelector('.screen.active')?.id;
+  if (current) screenHistory.push(current);
+  showScreen(to);
+}
+
+function selectTopic(topic) {
+  currentTopic = topic;
+  document.getElementById('modeBreadcrumb').textContent = TOPIC_NAMES[topic];
+  document.getElementById('modeTitle').textContent = TOPIC_NAMES[topic];
+  navigate('modeScreen');
+}
+
+function selectMode(mode) {
+  currentMode = mode;
+  if (mode === 'theory') buildTheory();
+  else if (mode === 'practice') buildPractice();
+  else if (mode === 'quiz') buildQuiz();
+}
+
+// ─────────────────────────────────────────────
+// ── THEORY DATA ──
+// ─────────────────────────────────────────────
+const THEORY = {
+  er: [
+    {
+      id: 'entities',
+      nav: 'Entities & Attributes',
+      label: 'Concept 01',
+      title: 'Entities and Attributes',
+      html: `
+        <div class="definition-block"><div class="term">ENTITY</div><p>An entity is a real-world object or concept that can be distinctly identified and about which data is stored. Examples: Student, Course, Employee, Product.</p></div>
+        <div class="definition-block"><div class="term">ENTITY TYPE vs ENTITY INSTANCE</div><p>An <strong>entity type</strong> defines the structure (e.g., Student). An <strong>entity instance</strong> is a specific occurrence (e.g., Ali Raza with StudentID 1021). The distinction matters in schema design.</p></div>
+        <div class="definition-block"><div class="term">ATTRIBUTE</div><p>A property that describes an entity. Types include: <strong>Simple</strong> (atomic, e.g., Age), <strong>Composite</strong> (subdivided, e.g., Name = First + Last), <strong>Derived</strong> (computed, e.g., Age from DOB), <strong>Multi-valued</strong> (e.g., Phone numbers), and <strong>Key</strong> (uniquely identifies an instance).</p></div>
+        <div class="concept-check"><div class="concept-check-label">Concept Check</div><p>A student has multiple email addresses and a full name made of first and last parts. Which attribute type applies to each? Why does distinguishing these types matter when designing a database?</p></div>
+        <h3 class="sub-heading">Weak vs Strong Entities</h3>
+        <div class="definition-block"><div class="term">STRONG ENTITY</div><p>Has a primary key that uniquely identifies it independently. E.g., <code>Employee(EmpID, Name)</code>.</p></div>
+        <div class="definition-block"><div class="term">WEAK ENTITY</div><p>Cannot be uniquely identified by its own attributes alone. It depends on an <strong>owner (strong) entity</strong> via an <strong>identifying relationship</strong>. It has a <strong>partial key</strong> (discriminator). Notation: double rectangle. E.g., <code>Dependent</code> depends on <code>Employee</code>.</p></div>
+        <div class="concept-check"><div class="concept-check-label">Justification</div><p>We model Dependent as a weak entity because a dependent's name alone is not unique across all employees — only unique within one employee's family. Without the owner (Employee), the dependent record has no identity.</p></div>
+      `
+    },
+    {
+      id: 'relationships',
+      nav: 'Relationships & Cardinality',
+      label: 'Concept 02',
+      title: 'Relationships and Cardinality',
+      html: `
+        <div class="definition-block"><div class="term">RELATIONSHIP TYPE</div><p>An association among two or more entity types. E.g., <em>Works_For</em> between Employee and Department. A <strong>relationship instance</strong> is one specific association (e.g., Ali works for IT dept).</p></div>
+        <div class="definition-block"><div class="term">DEGREE</div><p><strong>Unary</strong> (recursive, 1 entity type) — e.g., Employee supervises Employee. <strong>Binary</strong> (2 entity types) — most common. <strong>Ternary</strong> (3 entity types) — e.g., Doctor prescribes Drug to Patient.</p></div>
+        <h3 class="sub-heading">Cardinality Ratios</h3>
+        <div class="definition-block"><div class="term">1:1 (One-to-One)</div><p>One instance of A is related to at most one instance of B, and vice versa. E.g., Employee manages at most one Department; Department has at most one Manager.</p></div>
+        <div class="definition-block"><div class="term">1:N (One-to-Many)</div><p>One instance of A can relate to many instances of B, but each instance of B relates to only one A. E.g., One Department has many Employees.</p></div>
+        <div class="definition-block"><div class="term">M:N (Many-to-Many)</div><p>Many instances of A relate to many instances of B. E.g., Students enroll in many Courses; Courses have many Students.</p></div>
+        <div class="concept-check"><div class="concept-check-label">Concept Check</div><p>A bank account can be owned by multiple customers, and one customer can own multiple accounts. What is the cardinality? How would you represent this in a relational schema?</p></div>
+        <h3 class="sub-heading">Participation Constraints</h3>
+        <div class="definition-block"><div class="term">TOTAL PARTICIPATION</div><p>Every instance of the entity must participate in the relationship (shown by double line). E.g., every Employee must work for a Department.</p></div>
+        <div class="definition-block"><div class="term">PARTIAL PARTICIPATION</div><p>Some instances may not participate (single line). E.g., not every Employee manages a Department.</p></div>
+        <div class="concept-check"><div class="concept-check-label">Justification</div><p>Total participation enforces a business rule at the schema level. By marking an entity's participation as total, we ensure referential integrity is preserved — no orphaned records can exist.</p></div>
+      `
+    },
+    {
+      id: 'eer',
+      nav: 'Enhanced ER (EER)',
+      label: 'Concept 03',
+      title: 'Enhanced ER Modelling',
+      html: `
+        <div class="definition-block"><div class="term">SPECIALISATION</div><p>A top-down process where a superclass (e.g., Employee) is divided into subclasses (e.g., Manager, Engineer, Secretary) based on distinguishing characteristics. Subclasses inherit all superclass attributes.</p></div>
+        <div class="definition-block"><div class="term">GENERALISATION</div><p>A bottom-up process — multiple entity types (e.g., Car, Truck, Motorcycle) are recognised to share common attributes and are abstracted into a superclass (e.g., Vehicle).</p></div>
+        <div class="concept-check"><div class="concept-check-label">Concept Check</div><p>Is specialisation or generalisation more appropriate when you start design from identifying specific types first, then notice their similarities? Why?</p></div>
+        <h3 class="sub-heading">Constraints on Specialisation</h3>
+        <div class="definition-block"><div class="term">DISJOINT (d)</div><p>An entity can belong to <strong>at most one</strong> subclass. E.g., an Employee is either a Manager or an Engineer, not both. Shown with a <strong>d</strong> inside the specialisation circle.</p></div>
+        <div class="definition-block"><div class="term">OVERLAPPING (o)</div><p>An entity can belong to <strong>more than one</strong> subclass simultaneously. E.g., a Person can be both a Student and an Employee. Shown with an <strong>o</strong>.</p></div>
+        <div class="definition-block"><div class="term">TOTAL SPECIALISATION</div><p>Every superclass instance must belong to at least one subclass. Shown with a <strong>double line</strong>.</p></div>
+        <div class="definition-block"><div class="term">PARTIAL SPECIALISATION</div><p>A superclass instance may not belong to any subclass. Shown with a <strong>single line</strong>.</p></div>
+        <h3 class="sub-heading">Union Types &amp; Aggregation</h3>
+        <div class="definition-block"><div class="term">UNION TYPE (CATEGORY)</div><p>A subclass that has <strong>multiple superclasses of different types</strong>. E.g., Owner can be a Person or a Company or a Bank. The union subclass picks from different parent types (unlike ordinary inheritance where there is one superclass).</p></div>
+        <div class="definition-block"><div class="term">AGGREGATION</div><p>Treats a relationship as a higher-level entity. Used when a relationship itself needs to participate in another relationship. E.g., the relationship <em>Works_On</em>(Employee, Project) is aggregated to allow linking a Supervisor to that work assignment.</p></div>
+        <div class="concept-check"><div class="concept-check-label">Justification</div><p>Aggregation is necessary when a ternary relationship cannot adequately represent the semantics — specifically when one of the "participants" is itself a binary relationship, not a simple entity.</p></div>
+      `
+    }
+  ],
+  rm: [
+    {
+      id: 'relations',
+      nav: 'Relations & Schema',
+      label: 'Concept 01',
+      title: 'Relations and Schema',
+      html: `
+        <div class="definition-block"><div class="term">RELATION</div><p>A table with rows and columns. Formally, a relation R is defined on a set of attributes A1, A2, ..., An. Each attribute has a <strong>domain</strong> — the set of permissible values.</p></div>
+        <div class="definition-block"><div class="term">TUPLE</div><p>A single row in a relation — one complete record. All values in a tuple must come from the domain of their respective attribute. A relation with n attributes is called an n-tuple.</p></div>
+        <div class="definition-block"><div class="term">SCHEMA vs INSTANCE</div><p><strong>Schema</strong>: the structure definition — attribute names and domains (stable). <strong>Instance</strong>: the actual data at a point in time (changes frequently). E.g., <code>Student(StudentID, Name, DOB, DeptCode)</code> is the schema.</p></div>
+        <div class="concept-check"><div class="concept-check-label">Concept Check</div><p>A relation has 4 attributes and 200 rows. What is the degree and the cardinality of this relation? Why are both measures meaningful to a database designer?</p></div>
+        <h3 class="sub-heading">Properties of Relations</h3>
+        <div class="step-guide">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">No duplicate tuples</div><div class="step-desc">Every row must be distinct. This is guaranteed by the existence of a primary key.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Tuple ordering is immaterial</div><div class="step-desc">Rows have no inherent order in the relational model. Ordering is a query concern, not a storage concern.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Attribute ordering is immaterial</div><div class="step-desc">Columns can logically be in any order. Referencing by name, not position, is the correct approach.</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Atomic attribute values</div><div class="step-desc">Each cell contains a single, indivisible value. This is the First Normal Form requirement.</div></div></div>
+        </div>
+      `
+    },
+    {
+      id: 'keys',
+      nav: 'Keys and Constraints',
+      label: 'Concept 02',
+      title: 'Keys and Integrity Constraints',
+      html: `
+        <div class="definition-block"><div class="term">SUPERKEY</div><p>Any set of attributes that uniquely identifies a tuple. E.g., {StudentID}, {StudentID, Name}, {StudentID, Name, DOB} are all superkeys if StudentID alone is unique.</p></div>
+        <div class="definition-block"><div class="term">CANDIDATE KEY</div><p>A <strong>minimal</strong> superkey — no proper subset of it is also a superkey. There may be multiple candidate keys in a relation.</p></div>
+        <div class="definition-block"><div class="term">PRIMARY KEY (PK)</div><p>The candidate key chosen by the designer to be the principal means of identifying tuples. Must be <strong>unique</strong> and <strong>NOT NULL</strong>. Shown underlined in schema notation.</p></div>
+        <div class="definition-block"><div class="term">FOREIGN KEY (FK)</div><p>An attribute (or set) in relation R that references the primary key of relation S. Enforces <strong>referential integrity</strong> — the referenced value must exist in S, or be NULL.</p></div>
+        <div class="concept-check"><div class="concept-check-label">Concept Check</div><p>Consider <code>Enrollment(StudentID, CourseID, Grade)</code>. Identify the candidate key(s), primary key, and any foreign keys. Justify each choice.</p></div>
+        <h3 class="sub-heading">Integrity Constraints</h3>
+        <div class="definition-block"><div class="term">ENTITY INTEGRITY</div><p>No primary key attribute may be NULL. A NULL primary key would make a tuple unidentifiable — a fundamental violation of the relational model.</p></div>
+        <div class="definition-block"><div class="term">REFERENTIAL INTEGRITY</div><p>Every foreign key value must either match an existing primary key value in the referenced relation, or be NULL (if allowed). This prevents "dangling references."</p></div>
+        <div class="definition-block"><div class="term">DOMAIN CONSTRAINT</div><p>Every attribute value must be an element of the attribute's defined domain. E.g., Grade must be in {A, B, C, D, F} if so defined.</p></div>
+        <div class="concept-check"><div class="concept-check-label">Justification</div><p>Integrity constraints are enforced at the DBMS level to ensure data consistency regardless of which application inserts or modifies data. They are not application-side validations — they are schema-level guarantees.</p></div>
+      `
+    },
+    {
+      id: 'mapping',
+      nav: 'ER to Relational Mapping',
+      label: 'Concept 03',
+      title: 'Mapping ER to Relational Schema',
+      html: `
+        <div class="step-guide">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Map each strong entity type</div><div class="step-desc">Create a relation with all simple attributes. Choose a primary key from the candidate keys. Composite attributes: include their component attributes. Multi-valued attributes: create a separate relation.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Map weak entity types</div><div class="step-desc">Create a relation with the weak entity's attributes AND the primary key of the owner entity as a foreign key. The PK is the combination of the owner's PK + the partial key.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Map 1:1 relationships</div><div class="step-desc">Include the PK of one entity as a FK in the other's relation. Choose the entity with total participation as the one that receives the FK (to avoid NULLs).</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Map 1:N relationships</div><div class="step-desc">Include the PK of the "1" side as a FK in the "N" side relation. Add any relationship attributes to the N-side relation as well.</div></div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-title">Map M:N relationships</div><div class="step-desc">Create a new <strong>junction/bridge relation</strong> whose PK is the combination of PKs of both participating entities. Include any relationship attributes.</div></div></div>
+          <div class="step"><div class="step-num">6</div><div class="step-body"><div class="step-title">Map multi-valued attributes</div><div class="step-desc">Create a new relation with the attribute and the PK of the entity. The PK of this new relation is the combination of both.</div></div></div>
+        </div>
+        <div class="concept-check"><div class="concept-check-label">Concept Check</div><p>Given a M:N relationship between Student and Course with a relationship attribute Grade, write the complete set of relations produced by the mapping process. Clearly indicate all primary and foreign keys.</p></div>
+      `
+    }
+  ],
+  dn: [
+    {
+      id: 'fd',
+      nav: 'Functional Dependencies',
+      label: 'Concept 01',
+      title: 'Functional Dependencies',
+      html: `
+        <div class="definition-block"><div class="term">FUNCTIONAL DEPENDENCY (FD)</div><p>A constraint between two sets of attributes X and Y in a relation R. We say X <strong>functionally determines</strong> Y, written X &rarr; Y, if for any two tuples t1 and t2 in R, whenever t1[X] = t2[X], then t1[Y] = t2[Y]. That is, X uniquely determines the value of Y.</p></div>
+        <div class="definition-block"><div class="term">FULL FUNCTIONAL DEPENDENCY</div><p>Y is fully functionally dependent on X if Y is FD on X and Y is NOT FD on any proper subset of X. Critical for 2NF analysis.</p></div>
+        <div class="definition-block"><div class="term">PARTIAL FUNCTIONAL DEPENDENCY</div><p>Y is partially dependent on X if Y is FD on a proper subset of X. This is a violation of 2NF when X is a composite key.</p></div>
+        <div class="definition-block"><div class="term">TRANSITIVE DEPENDENCY</div><p>If X &rarr; Y and Y &rarr; Z, and Y is not a key, then Z is transitively dependent on X through Y. This is a violation of 3NF.</p></div>
+        <div class="concept-check"><div class="concept-check-label">Concept Check</div><p>In a relation with composite key {StudentID, CourseID}, if Instructor_Name depends only on CourseID, what type of dependency is this? Why does this cause problems?</p></div>
+        <h3 class="sub-heading">Armstrong's Axioms</h3>
+        <div class="step-guide">
+          <div class="step"><div class="step-num">R</div><div class="step-body"><div class="step-title">Reflexivity</div><div class="step-desc">If Y &sube; X, then X &rarr; Y. Any set of attributes determines any of its subsets.</div></div></div>
+          <div class="step"><div class="step-num">A</div><div class="step-body"><div class="step-title">Augmentation</div><div class="step-desc">If X &rarr; Y, then XZ &rarr; YZ. Adding the same attributes to both sides preserves the FD.</div></div></div>
+          <div class="step"><div class="step-num">T</div><div class="step-body"><div class="step-title">Transitivity</div><div class="step-desc">If X &rarr; Y and Y &rarr; Z, then X &rarr; Z. FDs chain together.</div></div></div>
+        </div>
+      `
+    },
+    {
+      id: 'nf',
+      nav: 'Normal Forms 1NF–3NF',
+      label: 'Concept 02',
+      title: 'Normal Forms: 1NF, 2NF, and 3NF',
+      html: `
+        <div class="definition-block"><div class="term">FIRST NORMAL FORM (1NF)</div><p>A relation is in 1NF if and only if every attribute value is <strong>atomic</strong> — single, indivisible. No multi-valued attributes, no nested tables, no repeating groups. Every row must be unique (identifiable by a key).</p></div>
+        <div class="concept-check"><div class="concept-check-label">Violation Example</div><p>A Student relation where the PhoneNumbers column contains "0300-1234567, 0321-9876543" is NOT in 1NF. Fix: create a separate StudentPhone(StudentID, PhoneNumber) relation.</p></div>
+        <div class="definition-block"><div class="term">SECOND NORMAL FORM (2NF)</div><p>A relation is in 2NF if it is in 1NF AND every non-key attribute is <strong>fully functionally dependent</strong> on the <strong>entire primary key</strong>. Partial dependencies must be eliminated. (Only relevant when the PK is composite.)</p></div>
+        <div class="concept-check"><div class="concept-check-label">Violation Example</div><p>Relation: <code>Enrollment(StudentID, CourseID, StudentName, CourseName, Grade)</code>. StudentName depends only on StudentID (partial). CourseName depends only on CourseID (partial). Only Grade is fully dependent on {StudentID, CourseID}.</p></div>
+        <h3 class="sub-heading">2NF Decomposition Steps</h3>
+        <div class="step-guide">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Identify all partial dependencies</div><div class="step-desc">List attributes that depend on only a subset of the composite PK.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Create a new relation for each partial dependency group</div><div class="step-desc">The determinant (PK subset) becomes the PK of the new relation. Move the dependent attributes to it.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Retain fully dependent attributes in original</div><div class="step-desc">Keep only the composite PK and attributes that depend on the full PK in the original relation.</div></div></div>
+        </div>
+        <div class="definition-block"><div class="term">THIRD NORMAL FORM (3NF)</div><p>A relation is in 3NF if it is in 2NF AND there are no <strong>transitive dependencies</strong> — no non-key attribute depends on another non-key attribute. For every non-trivial FD X &rarr; Y, either X is a superkey, or Y is a prime attribute.</p></div>
+        <div class="concept-check"><div class="concept-check-label">Violation Example</div><p>Relation: <code>Employee(EmpID, DeptID, DeptName)</code>. EmpID &rarr; DeptID &rarr; DeptName. DeptName is transitively dependent on EmpID through DeptID.</p></div>
+        <h3 class="sub-heading">3NF Decomposition Steps</h3>
+        <div class="step-guide">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Find all transitive dependencies</div><div class="step-desc">Identify non-key attributes A &rarr; B where A is not a key.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Create new relation for each transitive group</div><div class="step-desc">The intermediate non-key determinant (A) becomes the PK of the new relation, containing its dependents (B).</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Replace in original</div><div class="step-desc">Keep A as a foreign key in the original relation; remove B from it.</div></div></div>
+        </div>
+      `
+    },
+    {
+      id: 'bcnf',
+      nav: 'BCNF & Anomalies',
+      label: 'Concept 03',
+      title: 'BCNF and Update Anomalies',
+      html: `
+        <div class="definition-block"><div class="term">BOYCE-CODD NORMAL FORM (BCNF)</div><p>A stricter version of 3NF. A relation is in BCNF if for <strong>every</strong> non-trivial FD X &rarr; Y, X must be a <strong>superkey</strong>. BCNF eliminates all redundancies based on FDs. A relation in BCNF is always in 3NF, but not vice versa.</p></div>
+        <div class="concept-check"><div class="concept-check-label">3NF vs BCNF Distinction</div><p>In 3NF, Y can be a prime attribute (part of a candidate key) even if X is not a superkey. BCNF removes this exception — X must always be a superkey. This matters when there are multiple overlapping candidate keys.</p></div>
+        <h3 class="sub-heading">The Three Update Anomalies</h3>
+        <div class="definition-block"><div class="term">INSERTION ANOMALY</div><p>You cannot insert certain data without inserting other, possibly irrelevant data. E.g., you cannot add a new department without first assigning at least one employee to it (if DeptName is stored in the Employee relation).</p></div>
+        <div class="definition-block"><div class="term">DELETION ANOMALY</div><p>Deleting one piece of data unintentionally destroys other valuable data. E.g., deleting the last employee in a department causes the department's information to be permanently lost.</p></div>
+        <div class="definition-block"><div class="term">UPDATE ANOMALY</div><p>Changing a piece of data requires updating multiple rows to maintain consistency. E.g., if a department name changes, every employee row referencing that department must be updated individually — missing even one creates inconsistency.</p></div>
+        <div class="concept-check"><div class="concept-check-label">Justification</div><p>Normalisation eliminates anomalies by ensuring each fact is stored exactly once. When data is stored redundantly, any inconsistency becomes possible. The goal of BCNF is a schema where every update touches exactly the one place where each fact lives.</p></div>
+        <h3 class="sub-heading">BCNF Decomposition</h3>
+        <div class="step-guide">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Find a violating FD</div><div class="step-desc">Identify a non-trivial FD X &rarr; Y where X is not a superkey.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Decompose</div><div class="step-desc">Create R1(X, Y) — the new relation with X as PK — and R2(attributes of R minus Y plus X) — the remainder keeping X as FK.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Repeat</div><div class="step-desc">Apply the same process to each resulting relation until all are in BCNF.</div></div></div>
+        </div>
+        <div class="concept-check"><div class="concept-check-label">Trade-off Note</div><p>BCNF decomposition always preserves lossless joins but may NOT preserve all functional dependencies. When dependency preservation is critical, 3NF may be preferred over BCNF.</p></div>
+      `
+    }
+  ]
+};
+
+// ─────────────────────────────────────────────
+// BUILD THEORY
+// ─────────────────────────────────────────────
+function buildTheory() {
+  const sections = THEORY[currentTopic];
+  const navEl = document.getElementById('theoryNavItems');
+  const contentEl = document.getElementById('theoryContent');
+  navEl.innerHTML = '';
+  contentEl.innerHTML = '';
+
+  sections.forEach((sec, i) => {
+    const navItem = document.createElement('a');
+    navItem.className = 'theory-nav-item' + (i === 0 ? ' active' : '');
+    navItem.textContent = sec.nav;
+    navItem.onclick = () => switchSection(sec.id, navItem);
+    navEl.appendChild(navItem);
+
+    const secEl = document.createElement('div');
+    secEl.className = 'theory-section' + (i === 0 ? ' active' : '');
+    secEl.id = 'tsec-' + sec.id;
+    secEl.innerHTML = `
+      <div class="section-header">
+        <div class="section-label">${sec.label}</div>
+        <h2 class="section-title">${sec.title}</h2>
+      </div>
+      ${sec.html}
+      <div class="theory-nav-next">
+        ${i < sections.length - 1 ? `<button class="btn-primary" onclick="switchSectionByIndex(${i+1})">Next: ${sections[i+1].nav} &rarr;</button>` : `<button class="btn-primary" onclick="selectMode('practice')">Go to Practice Scenarios &rarr;</button>`}
+      </div>
+    `;
+    contentEl.appendChild(secEl);
+  });
+
+  navigate('theoryScreen');
+}
+
+function switchSection(id, navItem) {
+  document.querySelectorAll('.theory-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.theory-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tsec-' + id).classList.add('active');
+  navItem.classList.add('active');
+  window.scrollTo(0, 100);
+}
+
+function switchSectionByIndex(idx) {
+  const sections = THEORY[currentTopic];
+  const navItems = document.querySelectorAll('.theory-nav-item');
+  switchSection(sections[idx].id, navItems[idx]);
+}
+
+// ─────────────────────────────────────────────
+// ── PRACTICE SCENARIOS DATA ──
+// ─────────────────────────────────────────────
+const SCENARIOS = {
+  er: [
+    { title: 'University Management System', desc: 'Model students, faculty, departments, and courses with proper cardinalities.' },
+    { title: 'Hospital Patient Records', desc: 'Patients, doctors, wards, and treatments — include weak entities.' },
+    { title: 'Online Retail Store', desc: 'Customers, orders, products, and suppliers with M:N relationships.' },
+    { title: 'Library Book Borrowing', desc: 'Members borrowing books — model the ternary relationship.' },
+    { title: 'Bank Accounts & Customers', desc: 'Accounts owned by multiple customers — M:N with attributes.' },
+    { title: 'Company Hierarchy (Recursive)', desc: 'Employees supervising other employees — unary relationship.' },
+    { title: 'Flight Reservation System', desc: 'Passengers, flights, seats — aggregation and composite keys.' }
+  ],
+  rm: [
+    { title: 'Student–Course Enrollment Schema', desc: 'Derive full relational schema from a 3-entity ER diagram.' },
+    { title: 'Supplier–Parts–Projects', desc: 'Classic 3-way M:N mapping to relational tables.' },
+    { title: 'Employee–Department Mapping', desc: 'Map 1:N with participation constraints; handle total/partial cases.' },
+    { title: 'Weak Entity: Dependents', desc: 'Map Employee with Dependents as a weak entity — composite PK.' },
+    { title: 'Multi-valued Attributes', desc: 'Handle phone numbers and emails in a clean relational schema.' },
+    { title: 'Recursive Supervisor Mapping', desc: 'Map the self-referencing Employee–supervises–Employee relationship.' },
+    { title: 'Patient–Doctor–Prescription', desc: 'Ternary relationship mapping — identify the correct bridge relation.' }
+  ],
+  dn: [
+    { title: 'Student Enrollment Table', desc: 'Identify partial dependencies and normalise from UNF to 3NF.' },
+    { title: 'Invoice Line Items', desc: 'A classic denormalised invoice table — step through 1NF to BCNF.' },
+    { title: 'Employee–Project Assignment', desc: 'Composite key with transitive and partial dependencies.' },
+    { title: 'Product Orders Table', desc: 'Multi-valued attributes and repeating groups — 1NF first.' },
+    { title: 'Course–Instructor Schedule', desc: 'Overlapping candidate keys — identify where BCNF and 3NF diverge.' },
+    { title: 'Library Loans', desc: 'Date-based dependencies — normalise step by step.' },
+    { title: 'Hospital Ward Assignments', desc: 'Identify all anomalies before decomposing to BCNF.' }
+  ]
+};
+
+// ─────────────────────────────────────────────
+// BUILD PRACTICE
+// ─────────────────────────────────────────────
+function buildPractice() {
+  const scenarios = SCENARIOS[currentTopic];
+  document.getElementById('practiceTopicLabel').textContent = TOPIC_NAMES[currentTopic];
+  const grid = document.getElementById('scenariosGrid');
+  grid.innerHTML = '';
+  scenarios.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'scenario-card';
+    card.innerHTML = `
+      <div class="scenario-num">SCENARIO ${String(i+1).padStart(2,'0')}</div>
+      <div class="scenario-title">${s.title}</div>
+      <div class="scenario-desc">${s.desc}</div>
+    `;
+    card.onclick = () => startAnimation(i);
+    grid.appendChild(card);
+  });
+  navigate('practiceScreen');
+}
+
+// ─────────────────────────────────────────────
+// ── ANIMATION STEPS DATA ──
+// ─────────────────────────────────────────────
+function getAnimSteps(topic, scenarioIdx) {
+  // Each scenario for a topic follows the same pedagogical step sequence
+  // but with the specific scenario's data. Below we define topic-level steps
+  // and inject scenario context.
+
+  const sc = SCENARIOS[topic][scenarioIdx];
+
+  if (topic === 'dn') {
+    const scenarios_data = [
+      // Scenario 0: Student Enrollment
+      {
+        raw: `<table class="data-table"><thead><tr><th>StudentID</th><th>CourseID</th><th>StudentName</th><th>CourseName</th><th>Instructor</th><th>Grade</th></tr></thead><tbody>
+          <tr><td class="pk">S01</td><td class="pk">C01</td><td>Ali Raza</td><td>Database Systems</td><td>Dr. Malik</td><td>A</td></tr>
+          <tr><td class="pk">S01</td><td class="pk">C02</td><td>Ali Raza</td><td>Networks</td><td>Dr. Khan</td><td>B</td></tr>
+          <tr><td class="pk">S02</td><td class="pk">C01</td><td>Sara Ahmed</td><td>Database Systems</td><td>Dr. Malik</td><td>A</td></tr>
+        </tbody></table>`,
+        fds: `<div class="fd-box">StudentID</div><span class="fd-arrow">&rarr;</span><div class="fd-box">StudentName</div>
+              <br><div class="fd-box">CourseID</div><span class="fd-arrow">&rarr;</span><div class="fd-box">CourseName, Instructor</div>
+              <br><div class="fd-box">StudentID, CourseID</div><span class="fd-arrow">&rarr;</span><div class="fd-box">Grade</div>`,
+        twoNF: `<b>Student</b>(<u>StudentID</u>, StudentName)<br><b>Course</b>(<u>CourseID</u>, CourseName, Instructor)<br><b>Enrollment</b>(<u>StudentID, CourseID</u>, Grade)`,
+        check3NF: `In <b>Course</b>: CourseID &rarr; Instructor &rarr; ? No transitive dependency. All relations are already in 3NF.`,
+        final: `<b>Student</b>(<u>StudentID</u>, StudentName)<br><b>Course</b>(<u>CourseID</u>, CourseName, Instructor)<br><b>Enrollment</b>(<u>StudentID*, CourseID*</u>, Grade)`
+      }
+    ];
+    // For all scenarios, use similar step pattern with adapted labels
+    const base = scenarios_data[0]; // reuse structure
+    return [
+      {
+        label: 'STEP 1 — Examine the Raw Table',
+        content: base.raw,
+        explanation: `<strong>Start by examining the unnormalised table.</strong> Look for: repeating groups, multi-valued cells, and what the primary key appears to be. Here the composite key is {StudentID, CourseID} since no single attribute uniquely identifies a row.`
+      },
+      {
+        label: 'STEP 2 — Check First Normal Form (1NF)',
+        content: `<p style="margin-bottom:12px"><strong>1NF Check:</strong> All values atomic? No repeating groups?</p>
+          <div class="pill-row">
+            <span class="pill pill-red">Rule 1: All values atomic</span>
+            <span class="pill pill-red">Rule 2: Each row unique</span>
+            <span class="pill pill-red">Rule 3: No repeating groups</span>
+          </div>
+          <p style="margin-top:14px;font-size:0.93rem">The table passes 1NF — all values are atomic and the composite key {StudentID, CourseID} ensures uniqueness.</p>`,
+        explanation: `<strong>1NF is the foundation.</strong> Without atomic values, you cannot define proper functional dependencies. Always verify this before proceeding. If a table had multi-valued attributes (e.g., "Phones: 0300, 0321"), you would first separate them into a new relation.`
+      },
+      {
+        label: 'STEP 3 — Identify Functional Dependencies',
+        content: base.fds,
+        explanation: `<strong>List all functional dependencies (FDs) explicitly.</strong> Identify which attributes determine which others. Notice that StudentName depends only on StudentID — not on the full composite key. This is a <strong>partial dependency</strong>, which violates 2NF.`
+      },
+      {
+        label: 'STEP 4 — Decompose to 2NF',
+        content: `<div style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;line-height:2.2">${base.twoNF}</div>`,
+        explanation: `<strong>Eliminate all partial dependencies.</strong> Each partial dependency group becomes its own relation, with the determinant as PK. The original relation retains only fully dependent attributes. Notice StudentName and CourseName/Instructor have been moved out — only Grade remains with the composite key.`
+      },
+      {
+        label: 'STEP 5 — Check for Transitive Dependencies (3NF)',
+        content: `<p style="font-size:0.93rem;margin-bottom:14px">${base.check3NF}</p>
+          <div class="pill-row"><span class="pill pill-red">All non-key attributes depend directly on their PK</span></div>`,
+        explanation: `<strong>For 3NF, verify that no non-key attribute depends on another non-key attribute.</strong> A transitive dependency like EmpID &rarr; DeptID &rarr; DeptName would require further decomposition. Here, no such chain exists across our decomposed relations.`
+      },
+      {
+        label: 'STEP 6 — Final Normalised Schema',
+        content: `<div style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;line-height:2.5">${base.final}</div>
+          <p style="margin-top:16px;font-size:0.82rem;color:var(--mid-gray)">Underlined = Primary Key &nbsp;|&nbsp; Asterisk (*) = Foreign Key</p>`,
+        explanation: `<strong>The final schema is in 3NF (and BCNF in this case).</strong> Every fact is stored exactly once. Updating a course name requires changing only one row in Course. Inserting a student requires no course data. All anomalies are eliminated.`
+      }
+    ];
+  }
+
+  if (topic === 'er') {
+    return [
+      {
+        label: 'STEP 1 — Identify Entities',
+        content: `<div class="pill-row">${['Student','Faculty','Department','Course'].map(e=>`<span class="pill pill-red">${e}</span>`).join('')}</div>
+          <p style="margin-top:14px;font-size:0.93rem">For scenario: <strong>${sc.title}</strong>. Identify all distinct real-world objects about which data must be stored. List them as entity types.</p>`,
+        explanation: `<strong>Entity identification is the first step.</strong> Ask: "What things do I need to record data about?" Each distinct object type — not instance — becomes an entity. Avoid verbs (they become relationships) and avoid properties (they become attributes).`
+      },
+      {
+        label: 'STEP 2 — Identify Attributes for Each Entity',
+        content: `<table class="data-table"><thead><tr><th>Entity</th><th>Key Attribute</th><th>Other Attributes</th></tr></thead><tbody>
+          <tr><td>Student</td><td class="pk">StudentID</td><td>Name, DOB, Email</td></tr>
+          <tr><td>Course</td><td class="pk">CourseCode</td><td>Title, Credits, Description</td></tr>
+          <tr><td>Department</td><td class="pk">DeptCode</td><td>DeptName, Location</td></tr>
+          <tr><td>Faculty</td><td class="pk">FacultyID</td><td>Name, Rank, Salary</td></tr>
+        </tbody></table>`,
+        explanation: `<strong>Identify a key attribute for each entity</strong> — it must uniquely identify every instance. Classify other attributes: simple, composite, derived, or multi-valued. Composite attributes (e.g., Name = First + Last) may be left composite at ER level but decomposed in the relational schema.`
+      },
+      {
+        label: 'STEP 3 — Identify Relationships',
+        content: `<table class="data-table"><thead><tr><th>Relationship</th><th>Entities Involved</th><th>Cardinality</th><th>Participation</th></tr></thead><tbody>
+          <tr><td>Enrolled_In</td><td>Student &harr; Course</td><td>M:N</td><td>Partial : Partial</td></tr>
+          <tr><td>Teaches</td><td>Faculty &harr; Course</td><td>1:N</td><td>Partial : Total</td></tr>
+          <tr><td>Belongs_To</td><td>Faculty &harr; Department</td><td>N:1</td><td>Total : Partial</td></tr>
+          <tr><td>Offers</td><td>Department &harr; Course</td><td>1:N</td><td>Partial : Total</td></tr>
+        </tbody></table>`,
+        explanation: `<strong>Define relationships as verbs between entity pairs.</strong> For each relationship determine: (1) cardinality ratio (1:1, 1:N, M:N), (2) participation (total or partial) for each entity. Cardinality and participation together define the complete structural constraint.`
+      },
+      {
+        label: 'STEP 4 — Determine Cardinality Carefully',
+        content: `<p style="font-size:0.93rem;margin-bottom:14px">Focus on: <strong>Student &harr; Course (Enrolled_In)</strong></p>
+          <div class="pill-row">
+            <span class="pill pill-red">One Student enrolls in MANY courses</span>
+            <span class="pill pill-red">One Course has MANY students</span>
+            <span class="pill pill-amber">Result: M:N</span>
+          </div>
+          <p style="margin-top:16px;font-size:0.93rem">Relationship attribute: <strong>Grade</strong> — belongs on the relationship, not on either entity, because a grade applies to a specific student–course pair.</p>`,
+        explanation: `<strong>Cardinality is determined by asking questions from both sides.</strong> "Can one student enroll in many courses?" Yes. "Can one course have many students?" Yes. Therefore M:N. Relationship attributes that describe the association (like Grade) belong on the relationship itself — a critical modelling decision.`
+      },
+      {
+        label: 'STEP 5 — Check for Weak Entities',
+        content: `<p style="font-size:0.93rem;margin-bottom:14px">Examine each entity: can it be identified without referencing another entity?</p>
+          <div class="pill-row">
+            <span class="pill pill-gray">Student — has own PK (StudentID). Strong.</span>
+          </div>
+          <div class="pill-row">
+            <span class="pill pill-red">If adding Transcript entries — weak, depends on Student</span>
+          </div>
+          <p style="margin-top:14px;font-size:0.92rem">A Transcript entry has a SemesterCode (partial key) but needs StudentID to be fully identified. &rarr; Weak entity with identifying relationship.</p>`,
+        explanation: `<strong>Weak entities are identified by their dependence on a strong entity.</strong> If removing the owner entity renders the weak entity unidentifiable, it is weak. Always check: does the entity have attributes sufficient to form its own primary key? If not, it is weak.`
+      },
+      {
+        label: 'STEP 6 — Apply EER Concepts if Applicable',
+        content: `<p style="font-size:0.93rem;margin-bottom:14px">Consider: does any entity type subdivide into specialised subtypes?</p>
+          <div class="pill-row">
+            <span class="pill pill-red">Superclass: Person</span>
+            <span class="pill pill-amber">Subclass: Student, Faculty</span>
+          </div>
+          <div style="margin-top:14px;font-size:0.92rem">
+            <p><strong>Constraint choice:</strong></p>
+            <div class="pill-row">
+              <span class="pill pill-gray">Disjoint (d): A person is either a Student or Faculty, not both</span>
+            </div>
+            <div class="pill-row">
+              <span class="pill pill-gray">Total: Every Person must be in at least one subclass</span>
+            </div>
+          </div>`,
+        explanation: `<strong>EER specialisation adds inheritance to ER modelling.</strong> Shared attributes (Name, DOB, Email) go in the superclass Person. Role-specific attributes (StudentID, GPA) go in the Student subclass; (FacultyID, Rank) go in Faculty. The constraint {disjoint, total} specifies that every person is exactly one type.`
+      }
+    ];
+  }
+
+  // Relational Modelling
+  return [
+    {
+      label: 'STEP 1 — List All ER Elements to Map',
+      content: `<p style="font-size:0.93rem;margin-bottom:14px"><strong>Scenario: ${sc.title}</strong></p>
+        <table class="data-table"><thead><tr><th>Element</th><th>Type</th><th>Mapping Rule</th></tr></thead><tbody>
+          <tr><td>Strong entities</td><td>Entity</td><td>Create a relation, choose PK</td></tr>
+          <tr><td>Weak entities</td><td>Entity</td><td>Create relation, PK = owner PK + partial key</td></tr>
+          <tr><td>1:N relationships</td><td>Relationship</td><td>FK on the N-side</td></tr>
+          <tr><td>M:N relationships</td><td>Relationship</td><td>New junction relation</td></tr>
+          <tr><td>Multi-valued attrs</td><td>Attribute</td><td>New relation with entity PK</td></tr>
+        </tbody></table>`,
+      explanation: `<strong>Systematic mapping requires knowing every mapping rule before you start.</strong> Work through elements in order: strong entities first, then weak entities, then 1:1 relationships, then 1:N, then M:N, and finally multi-valued attributes. Never skip a step.`
+    },
+    {
+      label: 'STEP 2 — Map Strong Entities',
+      content: `<div style="font-family:'JetBrains Mono',monospace;font-size:0.88rem;line-height:2.2">
+        <b>Student</b>(<u>StudentID</u>, FirstName, LastName, DOB)<br>
+        <b>Course</b>(<u>CourseCode</u>, Title, Credits)<br>
+        <b>Department</b>(<u>DeptCode</u>, DeptName, Location)<br>
+        <b>Faculty</b>(<u>FacultyID</u>, Name, Rank)
+      </div>`,
+      explanation: `<strong>Each strong entity becomes one relation.</strong> The primary key is underlined. Composite attributes are flattened (FullName becomes FirstName + LastName). Derived attributes (e.g., Age) are typically omitted from the schema since they can be computed. Multi-valued attributes (e.g., PhoneNumbers) are noted for Step 6.`
+    },
+    {
+      label: 'STEP 3 — Map 1:N Relationships',
+      content: `<div style="font-family:'JetBrains Mono',monospace;font-size:0.88rem;line-height:2.2">
+        <b>Faculty</b>(<u>FacultyID</u>, Name, Rank, <span style="color:var(--amber)">DeptCode*</span>)<br>
+        <b>Course</b>(<u>CourseCode</u>, Title, Credits, <span style="color:var(--amber)">DeptCode*</span>, <span style="color:var(--amber)">FacultyID*</span>)
+      </div>
+      <p style="margin-top:14px;font-size:0.88rem;color:var(--mid-gray)">* = Foreign Key referencing the "1" side's PK</p>`,
+      explanation: `<strong>For 1:N relationships, the PK of the "1" side becomes a FK in the "N" side relation.</strong> Department (1) &harr; Faculty (N): add DeptCode as FK in Faculty. Department (1) &harr; Course (N): add DeptCode as FK in Course. Faculty (1) &harr; Course (N): add FacultyID as FK in Course.`
+    },
+    {
+      label: 'STEP 4 — Map M:N Relationships (Junction Table)',
+      content: `<div style="font-family:'JetBrains Mono',monospace;font-size:0.88rem;line-height:2.2">
+        <b>Enrollment</b>(<u><span style="color:var(--accent)">StudentID*</span>, <span style="color:var(--accent)">CourseCode*</span></u>, Grade, EnrollDate)
+      </div>
+      <p style="margin-top:14px;font-size:0.88rem;color:var(--mid-gray)">PK = combination of both foreign keys. Relationship attributes (Grade) added here.</p>`,
+      explanation: `<strong>M:N relationships always require a new junction relation.</strong> Its primary key is the combination of the PKs from both participating entities. Any attributes that belong to the relationship itself (Grade is earned by a specific student in a specific course — not by either alone) are added to this junction relation.`
+    },
+    {
+      label: 'STEP 5 — Map Weak Entity (if present)',
+      content: `<div style="font-family:'JetBrains Mono',monospace;font-size:0.88rem;line-height:2.2">
+        <b>Transcript</b>(<u><span style="color:var(--accent)">StudentID*</span>, SemesterCode</u>, GPA, TotalCredits)
+      </div>
+      <p style="margin-top:14px;font-size:0.88rem">PK = owner's PK (StudentID) + partial key (SemesterCode).<br>The identifying relationship is absorbed — no separate relation needed for it.</p>`,
+      explanation: `<strong>Weak entities depend on their owner for identification.</strong> The owner's PK becomes part of the weak entity relation's composite PK — not just a FK, but part of the identifier itself. The identifying relationship does not become a separate relation.`
+    },
+    {
+      label: 'STEP 6 — Complete Schema Summary',
+      content: `<div style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:2.4">
+        <b>Department</b>(<u>DeptCode</u>, DeptName, Location)<br>
+        <b>Faculty</b>(<u>FacultyID</u>, Name, Rank, DeptCode*)<br>
+        <b>Course</b>(<u>CourseCode</u>, Title, Credits, DeptCode*, FacultyID*)<br>
+        <b>Student</b>(<u>StudentID</u>, FirstName, LastName, DOB)<br>
+        <b>Enrollment</b>(<u>StudentID*, CourseCode*</u>, Grade, EnrollDate)<br>
+        <b>Transcript</b>(<u>StudentID*, SemesterCode</u>, GPA, Credits)
+      </div>`,
+      explanation: `<strong>The complete relational schema captures all entities, relationships, and constraints.</strong> Every FK enforces referential integrity. No many-to-many relationship is left unmapped. Every multi-valued attribute has its own relation. This schema can now be implemented directly in any RDBMS.`
+    }
+  ];
+}
+
+// ─────────────────────────────────────────────
+// START ANIMATION
+// ─────────────────────────────────────────────
+function startAnimation(idx) {
+  currentAnimScenario = idx;
+  currentAnimStep = 0;
+  const scenario = SCENARIOS[currentTopic][idx];
+  const steps = getAnimSteps(currentTopic, idx);
+
+  document.getElementById('animTopicLabel').textContent = TOPIC_NAMES[currentTopic];
+  document.getElementById('animTitle').textContent = scenario.title;
+  document.getElementById('animSub').textContent = scenario.desc;
+
+  // Build step tracker
+  const tracker = document.getElementById('stepTracker');
+  tracker.innerHTML = '';
+  steps.forEach((_, i) => {
+    if (i > 0) {
+      const line = document.createElement('div');
+      line.className = 'step-line';
+      line.id = 'stepLine' + i;
+      tracker.appendChild(line);
+    }
+    const dot = document.createElement('div');
+    dot.className = 'step-dot' + (i === 0 ? ' current' : '');
+    dot.id = 'stepDot' + i;
+    dot.textContent = i + 1;
+    tracker.appendChild(dot);
+  });
+
+  renderAnimStep(steps);
+  navigate('animScreen');
+}
+
+function renderAnimStep(steps) {
+  const step = steps[currentAnimStep];
+  document.getElementById('stageLabel').textContent = step.label;
+  document.getElementById('stageContent').innerHTML = step.content;
+  document.getElementById('animExplanation').innerHTML = step.explanation;
+  document.getElementById('stepLabelText').innerHTML = `Step <strong>${currentAnimStep + 1}</strong> of <strong>${steps.length}</strong>`;
+
+  // Update tracker
+  steps.forEach((_, i) => {
+    const dot = document.getElementById('stepDot' + i);
+    dot.className = 'step-dot';
+    if (i < currentAnimStep) { dot.classList.add('completed'); dot.innerHTML = '&#10003;'; }
+    else if (i === currentAnimStep) { dot.classList.add('current'); dot.textContent = i + 1; }
+    else dot.textContent = i + 1;
+
+    if (i > 0) {
+      const line = document.getElementById('stepLine' + i);
+      line.className = 'step-line' + (i <= currentAnimStep ? ' done' : '');
+    }
+  });
+
+  document.getElementById('prevStepBtn').disabled = currentAnimStep === 0;
+  document.getElementById('prevStepBtn').style.opacity = currentAnimStep === 0 ? '0.4' : '1';
+
+  const isLast = currentAnimStep === steps.length - 1;
+  const nextBtn = document.getElementById('nextStepBtn');
+  nextBtn.textContent = isLast ? 'Done — Back to Scenarios' : 'Next Step';
+  nextBtn.onclick = isLast ? () => goBack() : () => nextStep();
+}
+
+function nextStep() {
+  const steps = getAnimSteps(currentTopic, currentAnimScenario);
+  if (currentAnimStep < steps.length - 1) {
+    currentAnimStep++;
+    renderAnimStep(steps);
+    document.querySelector('.anim-stage').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function prevStep() {
+  if (currentAnimStep > 0) {
+    currentAnimStep--;
+    const steps = getAnimSteps(currentTopic, currentAnimScenario);
+    renderAnimStep(steps);
+  }
+}
+
+// ─────────────────────────────────────────────
+// ── QUIZ DATA ──
+// ─────────────────────────────────────────────
+const QUIZ_QUESTIONS = {
+  er: [
+    {
+      q: 'Identify the relationship type between Student and Course in a university system.',
+      context: 'A student can enroll in multiple courses. A course can have multiple students enrolled.',
+      type: 'text+draw',
+      solution: `<strong>Relationship:</strong> Enrolled_In (or Enrollment) between Student and Course.<br><br>
+        <strong>Cardinality:</strong> M:N (Many-to-Many) — one student enrolls in many courses; one course has many students.<br><br>
+        <strong>Participation:</strong> Partial on both sides — a student need not be enrolled in any course, and a course may have zero enrollments (newly created).<br><br>
+        <strong>Relationship attribute:</strong> Grade belongs on the relationship, not on either entity, since it describes the specific student–course pairing.`
+    },
+    {
+      q: 'Draw and label the ER notation for a weak entity.',
+      context: 'An Employee entity has Dependents. A dependent is identified by name within an employee\'s family only.',
+      type: 'draw',
+      solution: `<strong>Weak entity rules:</strong><br>
+        <ul>
+          <li>Dependent is drawn with a <strong>double rectangle</strong></li>
+          <li>The identifying relationship (Has_Dependent) is drawn with a <strong>double diamond</strong></li>
+          <li>Dependent's partial key (DependentName) is underlined with a <strong>dashed underline</strong></li>
+          <li>The PK of Employee links to Dependent via the identifying relationship</li>
+          <li>Dependent participates with <strong>total participation</strong> (double line) — every dependent must belong to an employee</li>
+          <li>Employee has <strong>partial participation</strong> (single line) — not every employee has dependents</li>
+        </ul>`
+    },
+    {
+      q: 'What constraint pair describes: "Every employee must belong to exactly one department; one department has many employees"?',
+      context: 'Express the cardinality ratio AND both participation constraints.',
+      type: 'text',
+      solution: `<strong>Cardinality Ratio:</strong> 1:N (Department to Employee)<br>
+        Department (1) &harr; Employee (N)<br><br>
+        <strong>Participation:</strong><br>
+        &bull; Employee: <strong>Total participation</strong> — every employee must belong to a department (double line on Employee side)<br>
+        &bull; Department: <strong>Partial participation</strong> — a department may exist with no employees (single line on Department side)<br><br>
+        <strong>In schema mapping:</strong> Add DeptCode as a NOT NULL foreign key in the Employee relation (total participation means no NULLs allowed).`
+    },
+    {
+      q: 'Define specialisation and state the four possible constraint combinations.',
+      context: 'Use the EER vocabulary correctly.',
+      type: 'text',
+      solution: `<strong>Specialisation</strong> is a top-down refinement of a superclass into one or more subclasses based on distinguishing characteristics. Subclasses inherit all superclass attributes.<br><br>
+        <strong>Four constraint combinations:</strong><br>
+        <ul>
+          <li><strong>Disjoint + Total:</strong> Every superclass instance belongs to exactly one subclass (e.g., Shape is exactly Circle or Rectangle)</li>
+          <li><strong>Disjoint + Partial:</strong> Some superclass instances belong to one subclass; some belong to none (e.g., Employee may be a Manager or not)</li>
+          <li><strong>Overlapping + Total:</strong> Every superclass instance is in at least one (possibly multiple) subclasses</li>
+          <li><strong>Overlapping + Partial:</strong> Instances may be in multiple or no subclasses</li>
+        </ul>`
+    }
+  ],
+  rm: [
+    {
+      q: 'Given the ER diagram below, map the M:N relationship Enrollment(Student, Course) to relational schema.',
+      context: 'Student(StudentID, Name) and Course(CourseCode, Title) with relationship attribute Grade.',
+      type: 'text',
+      solution: `<strong>Resulting relations:</strong><br><br>
+        <code>Student(<u>StudentID</u>, Name)</code><br>
+        <code>Course(<u>CourseCode</u>, Title)</code><br>
+        <code>Enrollment(<u>StudentID*, CourseCode*</u>, Grade)</code><br><br>
+        <strong>Explanation:</strong>
+        <ul>
+          <li>M:N always creates a new junction relation</li>
+          <li>Its PK is the composite of both participating entities' PKs</li>
+          <li>Both StudentID and CourseCode are foreign keys referencing their respective relations</li>
+          <li>Grade is a relationship attribute and belongs in Enrollment, not in Student or Course</li>
+        </ul>`
+    },
+    {
+      q: 'Identify and name all types of keys in this schema: Order(OrderID, ProductID, CustomerID, OrderDate)',
+      context: 'Assume OrderID alone uniquely identifies a row. CustomerID references Customer table. ProductID references Product table.',
+      type: 'text',
+      solution: `<ul>
+          <li><strong>Superkey:</strong> {OrderID}, {OrderID, ProductID}, {OrderID, CustomerID}, {OrderID, ProductID, CustomerID, OrderDate}, and any set containing OrderID</li>
+          <li><strong>Candidate Key:</strong> {OrderID} — it is the minimal superkey</li>
+          <li><strong>Primary Key:</strong> OrderID — chosen from candidate keys, must be NOT NULL</li>
+          <li><strong>Foreign Keys:</strong> CustomerID (references Customer.CustomerID) and ProductID (references Product.ProductID)</li>
+        </ul>
+        <strong>Note:</strong> OrderDate and the FK attributes are not part of any candidate key here.`
+    },
+    {
+      q: 'State the Entity Integrity constraint and explain why it exists.',
+      context: '',
+      type: 'text',
+      solution: `<strong>Entity Integrity Constraint:</strong> No attribute that forms part of the primary key of any base relation is allowed to accept a NULL value.<br><br>
+        <strong>Why it exists:</strong>
+        <ul>
+          <li>A primary key uniquely identifies a tuple. If any part of it were NULL, the tuple would have no certain identity.</li>
+          <li>We could not reliably say which specific real-world entity a tuple refers to.</li>
+          <li>Foreign keys in other relations that reference this PK would be unable to reference an unknown entity.</li>
+          <li>The entire relational model's ability to link tables and retrieve consistent data depends on PK uniqueness and non-nullity.</li>
+        </ul>`
+    },
+    {
+      q: 'Map a weak entity: Employee has Dependents. A dependent is identified by DependentName within one employee.',
+      context: 'Write the relational schema for both entities.',
+      type: 'text',
+      solution: `<code>Employee(<u>EmpID</u>, EmpName, Salary)</code><br>
+        <code>Dependent(<u>EmpID*, DependentName</u>, Relationship, DOB)</code><br><br>
+        <strong>Key points:</strong>
+        <ul>
+          <li>Dependent's PK is composite: EmpID (from owner) + DependentName (partial key)</li>
+          <li>EmpID is simultaneously a FK referencing Employee AND part of the PK</li>
+          <li>The identifying relationship (Has_Dependent) is absorbed — no separate relation created for it</li>
+          <li>If an Employee row is deleted, all their Dependent rows should cascade-delete</li>
+        </ul>`
+    }
+  ],
+  dn: [
+    {
+      q: 'Identify the normal form violation in this relation and state which normal form it violates.',
+      context: 'ProjectAssignment(EmpID, ProjID, EmpName, ProjName, Hours). PK = {EmpID, ProjID}.',
+      type: 'text',
+      solution: `<strong>Violations identified:</strong><br>
+        <ul>
+          <li><strong>EmpID &rarr; EmpName</strong>: EmpName depends only on EmpID (subset of composite PK) &rarr; <strong>Partial dependency &rarr; violates 2NF</strong></li>
+          <li><strong>ProjID &rarr; ProjName</strong>: ProjName depends only on ProjID &rarr; <strong>Partial dependency &rarr; violates 2NF</strong></li>
+          <li>Hours depends on the full composite key {EmpID, ProjID} &rarr; correctly placed</li>
+        </ul>
+        <strong>Conclusion:</strong> The relation is in 1NF but NOT in 2NF.<br>
+        <strong>Fix (2NF decomposition):</strong><br>
+        Employee(<u>EmpID</u>, EmpName)<br>
+        Project(<u>ProjID</u>, ProjName)<br>
+        Assignment(<u>EmpID*, ProjID*</u>, Hours)`
+    },
+    {
+      q: 'Is this relation in 3NF? Justify. Employee(EmpID, DeptID, DeptName).',
+      context: 'EmpID is the primary key. EmpID &rarr; DeptID and DeptID &rarr; DeptName.',
+      type: 'text',
+      solution: `<strong>Answer: NO, this relation is NOT in 3NF.</strong><br><br>
+        <strong>Violation:</strong> EmpID &rarr; DeptID &rarr; DeptName<br>
+        DeptName is <strong>transitively dependent</strong> on EmpID through DeptID. DeptID is not a superkey, so the dependency DeptID &rarr; DeptName violates 3NF.<br><br>
+        <strong>3NF Decomposition:</strong><br>
+        <code>Department(<u>DeptID</u>, DeptName)</code><br>
+        <code>Employee(<u>EmpID</u>, DeptID*)</code><br><br>
+        Now DeptName is stored once in Department. Changing a department name requires updating only one row.`
+    },
+    {
+      q: 'Name and define all three types of update anomalies with a brief example of each.',
+      context: '',
+      type: 'text',
+      solution: `<strong>Insertion Anomaly:</strong> You cannot insert data about one entity without being forced to insert data about another. Example: Cannot add a new department unless at least one employee is assigned to it (if DeptName is stored in the Employee table).<br><br>
+        <strong>Deletion Anomaly:</strong> Deleting a row loses data about an unrelated entity. Example: Deleting the last employee in a department permanently destroys all information about that department.<br><br>
+        <strong>Update Anomaly:</strong> Changing a fact requires updating multiple rows; missing any creates inconsistency. Example: If "Marketing" is renamed to "Brand Strategy," every employee row with DeptName = "Marketing" must be updated individually.`
+    },
+    {
+      q: 'Normalise to BCNF: StudentAdvisor(StudentID, AdvisorID, AdvisorName, Department).',
+      context: 'FDs: StudentID &rarr; AdvisorID; AdvisorID &rarr; AdvisorName, Department. PK = StudentID.',
+      type: 'text',
+      solution: `<strong>Step 1 — Check 2NF:</strong> PK is single attribute (StudentID), so no partial dependencies possible. Already in 2NF.<br><br>
+        <strong>Step 2 — Check 3NF:</strong> StudentID &rarr; AdvisorID &rarr; AdvisorName (transitive) and &rarr; Department (transitive). Violates 3NF.<br><br>
+        <strong>Step 3 — Decompose:</strong><br>
+        <code>Advisor(<u>AdvisorID</u>, AdvisorName, Department)</code><br>
+        <code>StudentAdvisor(<u>StudentID</u>, AdvisorID*)</code><br><br>
+        <strong>BCNF check:</strong> In Advisor: AdvisorID &rarr; AdvisorName,Department — AdvisorID is PK (superkey). In StudentAdvisor: StudentID &rarr; AdvisorID — StudentID is PK. Both are in BCNF.<br><br>
+        <strong>Anomalies eliminated:</strong> AdvisorName and Department stored once per advisor, not repeated per student.`
+    }
+  ]
+};
+
+// ─────────────────────────────────────────────
+// BUILD QUIZ
+// ─────────────────────────────────────────────
+let quizQuestions = [];
+let quizAnsweredFlags = [];
+
+function buildQuiz() {
+  quizQuestions = QUIZ_QUESTIONS[currentTopic];
+  quizAnsweredFlags = new Array(quizQuestions.length).fill(false);
+  currentQuizIndex = 0;
+
+  document.getElementById('quizTopicLabel').textContent = TOPIC_NAMES[currentTopic];
+  navigate('quizScreen');
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const q = quizQuestions[currentQuizIndex];
+  const total = quizQuestions.length;
+  const pct = Math.round(((currentQuizIndex) / total) * 100);
+
+  document.getElementById('quizProgressFill').style.width = pct + '%';
+  document.getElementById('quizProgressText').textContent = `Question ${currentQuizIndex + 1} of ${total}`;
+
+  let canvas_html = '';
+  if (q.type === 'draw' || q.type === 'text+draw') {
+    canvas_html = `
+      <div class="quiz-canvas-wrap" style="margin-bottom:16px;position:relative" id="canvasWrap">
+        <div class="canvas-toolbar">
+          <div class="canvas-toolbar-group">
+            <span class="canvas-label">Draw</span>
+            <button id="toolPen" class="active" onclick="setCanvasTool('pen')" title="Freehand pen">Pen</button>
+            <button id="toolLine" onclick="setCanvasTool('line')" title="Straight line">Line</button>
+            <button id="toolArrow" onclick="setCanvasTool('arrow')" title="Arrow">Arrow</button>
+          </div>
+          <div class="canvas-toolbar-group">
+            <span class="canvas-label">Shapes</span>
+            <button id="toolRect" onclick="setCanvasTool('rect')" title="Rectangle (entity)">Rect</button>
+            <button id="toolEllipse" onclick="setCanvasTool('ellipse')" title="Ellipse (attribute)">Ellipse</button>
+            <button id="toolDiamond" onclick="setCanvasTool('diamond')" title="Diamond (relationship)">Diamond</button>
+            <button id="toolDblRect" onclick="setCanvasTool('dblrect')" title="Double rectangle (weak entity)">Dbl Rect</button>
+            <button id="toolDblEllipse" onclick="setCanvasTool('dblellipse')" title="Double ellipse (multivalued attribute)">Dbl Ellipse</button>
+          </div>
+          <div class="canvas-toolbar-group">
+            <span class="canvas-label">Cardinality</span>
+            <button id="toolOne" onclick="setCanvasTool('card_one')" title="'1' marker">1</button>
+            <button id="toolMany" onclick="setCanvasTool('card_many')" title="'M' marker">M</button>
+            <button id="toolCrowFoot" onclick="setCanvasTool('card_crow')" title="Crow's foot (many)">Crow</button>
+            <button id="toolTotalPart" onclick="setCanvasTool('card_total')" title="Total participation (double line)">Total</button>
+          </div>
+          <div class="canvas-toolbar-group">
+            <span class="canvas-label">Text</span>
+            <button id="toolText" onclick="setCanvasTool('text')" title="Add text label">Text</button>
+          </div>
+          <div class="canvas-toolbar-group">
+            <span class="canvas-label">Color</span>
+            <div class="canvas-color-row">
+              <div class="canvas-color-swatch active" style="background:#1A1A1A" onclick="setDrawColor('#1A1A1A',this)" title="Black"></div>
+              <div class="canvas-color-swatch" style="background:#C0392B" onclick="setDrawColor('#C0392B',this)" title="Red"></div>
+              <div class="canvas-color-swatch" style="background:#D4840A" onclick="setDrawColor('#D4840A',this)" title="Amber"></div>
+              <div class="canvas-color-swatch" style="background:#2563EB" onclick="setDrawColor('#2563EB',this)" title="Blue"></div>
+              <div class="canvas-color-swatch" style="background:#15803D" onclick="setDrawColor('#15803D',this)" title="Green"></div>
+            </div>
+          </div>
+          <div class="canvas-toolbar-group">
+            <span class="canvas-label">Size</span>
+            <button id="strokeThin" class="active" onclick="setStroke(1.5,this)" title="Thin">Thin</button>
+            <button id="strokeMed" onclick="setStroke(2.5,this)" title="Medium">Med</button>
+            <button id="strokeThick" onclick="setStroke(4,this)" title="Thick">Thick</button>
+          </div>
+          <div class="canvas-toolbar-group">
+            <button onclick="canvasUndo()" title="Undo last action (Ctrl+Z)">Undo</button>
+            <button id="toolEraser" onclick="setCanvasTool('eraser')" title="Eraser">Erase</button>
+            <button onclick="clearCanvas()" title="Clear entire canvas">Clear</button>
+          </div>
+        </div>
+        <canvas id="quizCanvas" width="720" height="260" style="max-width:100%;display:block"></canvas>
+      </div>
+    `;
+  }
+
+  let text_html = '';
+  if (q.type === 'text' || q.type === 'text+draw') {
+    text_html = `<textarea class="quiz-textbox" id="quizTextAnswer" placeholder="Type your answer here..."></textarea>`;
+  }
+
+  document.getElementById('quizQuestionArea').innerHTML = `
+    <div class="quiz-q-title">${q.q}</div>
+    ${q.context ? `<div class="quiz-q-context">${q.context}</div>` : ''}
+    ${canvas_html}
+    ${text_html}
+    <button class="btn-primary quiz-submit" onclick="submitQuizAnswer()">Submit &amp; See Solution</button>
+    <div id="solutionArea"></div>
+    <div class="quiz-nav-row" id="quizNavRow" style="display:none">
+      ${currentQuizIndex < total - 1
+        ? `<button class="btn-primary" onclick="nextQuizQuestion()">Next Question &rarr;</button>`
+        : `<button class="btn-primary" onclick="finishQuiz()">Finish Quiz &rarr;</button>`
+      }
+    </div>
+  `;
+
+  initCanvas();
+}
+
+// ─────────────────────────────────────────────
+// CANVAS — FULL-FEATURED DRAWING TOOL
+// ─────────────────────────────────────────────
+let canvasTool = 'pen';
+let isDrawing = false;
+let drawStartX = 0, drawStartY = 0;
+let lastX = 0, lastY = 0;
+let drawColor = '#1A1A1A';
+let drawStroke = 1.5;
+let canvasHistory = [];   // array of ImageData snapshots for undo
+let canvasSnapshot = null; // snapshot before current shape drag
+
+function initCanvas() {
+  const canvas = document.getElementById('quizCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Save blank state
+  canvasHistory = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
+
+  canvas.addEventListener('mousedown', e => { e.preventDefault(); handleStart(canvas, ctx, e.clientX, e.clientY); });
+  canvas.addEventListener('mousemove', e => { if (isDrawing) handleMove(canvas, ctx, e.clientX, e.clientY); });
+  canvas.addEventListener('mouseup',   e => { if (isDrawing) handleEnd(canvas, ctx, e.clientX, e.clientY); });
+  canvas.addEventListener('mouseleave',e => { if (isDrawing) handleEnd(canvas, ctx, e.clientX, e.clientY); });
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); const t=e.touches[0]; handleStart(canvas, ctx, t.clientX, t.clientY); }, {passive:false});
+  canvas.addEventListener('touchmove',  e => { e.preventDefault(); const t=e.touches[0]; if(isDrawing) handleMove(canvas, ctx, t.clientX, t.clientY); }, {passive:false});
+  canvas.addEventListener('touchend',   e => { e.preventDefault(); const t=e.changedTouches[0]; if(isDrawing) handleEnd(canvas, ctx, t.clientX, t.clientY); }, {passive:false});
+
+  document.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key==='z') { e.preventDefault(); canvasUndo(); }});
+
+  // Update cursor
+  canvas.style.cursor = canvasTool === 'eraser' ? 'cell' : canvasTool === 'text' ? 'text' : 'crosshair';
+}
+
+function getPos(canvas, clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  return [(clientX - rect.left) * scaleX, (clientY - rect.top) * scaleY];
+}
+
+function handleStart(canvas, ctx, cx, cy) {
+  const [x, y] = getPos(canvas, cx, cy);
+  if (canvasTool === 'text') { placeTextInput(canvas, x, y); return; }
+  isDrawing = true;
+  drawStartX = x; drawStartY = y;
+  lastX = x; lastY = y;
+  // Snapshot before drawing starts (for shape preview)
+  canvasSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  if (canvasTool === 'pen' || canvasTool === 'eraser') {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
+}
+
+function handleMove(canvas, ctx, cx, cy) {
+  const [x, y] = getPos(canvas, cx, cy);
+  if (canvasTool === 'pen' || canvasTool === 'eraser') {
+    ctx.strokeStyle = canvasTool === 'eraser' ? '#FFFFFF' : drawColor;
+    ctx.lineWidth = canvasTool === 'eraser' ? 18 : drawStroke;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    lastX = x; lastY = y;
+  } else {
+    // Restore snapshot and draw preview shape
+    ctx.putImageData(canvasSnapshot, 0, 0);
+    drawShape(ctx, drawStartX, drawStartY, x, y, false);
+  }
+}
+
+function handleEnd(canvas, ctx, cx, cy) {
+  isDrawing = false;
+  const [x, y] = getPos(canvas, cx, cy);
+  if (canvasTool !== 'pen' && canvasTool !== 'eraser') {
+    ctx.putImageData(canvasSnapshot, 0, 0);
+    drawShape(ctx, drawStartX, drawStartY, x, y, true);
+  }
+  // Push to history
+  canvasHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+  if (canvasHistory.length > 40) canvasHistory.shift();
+}
+
+function drawShape(ctx, x1, y1, x2, y2, final) {
+  ctx.strokeStyle = drawColor;
+  ctx.lineWidth = drawStroke;
+  ctx.fillStyle = 'transparent';
+  const w = x2 - x1, h = y2 - y1;
+  const mx = (x1+x2)/2, my = (y1+y2)/2;
+
+  ctx.beginPath();
+  switch(canvasTool) {
+    case 'line':
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); break;
+
+    case 'arrow':
+      drawArrow(ctx, x1, y1, x2, y2); break;
+
+    case 'rect':
+      ctx.strokeRect(x1, y1, w, h); break;
+
+    case 'dblrect': // double rectangle — weak entity
+      ctx.strokeRect(x1, y1, w, h);
+      const inset = 5;
+      ctx.strokeRect(x1+inset, y1+inset, w-inset*2, h-inset*2); break;
+
+    case 'ellipse':
+      ctx.ellipse(mx, my, Math.abs(w/2), Math.abs(h/2), 0, 0, Math.PI*2);
+      ctx.stroke(); break;
+
+    case 'dblellipse': // double ellipse — multi-valued attribute
+      ctx.ellipse(mx, my, Math.abs(w/2), Math.abs(h/2), 0, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(mx, my, Math.max(2,Math.abs(w/2)-5), Math.max(2,Math.abs(h/2)-5), 0, 0, Math.PI*2);
+      ctx.stroke(); break;
+
+    case 'diamond':
+      ctx.moveTo(mx, y1);
+      ctx.lineTo(x2, my);
+      ctx.lineTo(mx, y2);
+      ctx.lineTo(x1, my);
+      ctx.closePath();
+      ctx.stroke(); break;
+
+    case 'card_one':
+      // Vertical tick mark at x2,y2 end
+      if (final) { ctx.font = `bold ${14+drawStroke*2}px 'JetBrains Mono',monospace`; ctx.fillStyle = drawColor; ctx.fillText('1', x2, y2); }
+      break;
+
+    case 'card_many':
+      if (final) { ctx.font = `bold ${14+drawStroke*2}px 'JetBrains Mono',monospace`; ctx.fillStyle = drawColor; ctx.fillText('M', x2, y2); }
+      break;
+
+    case 'card_crow':
+      // Crow's foot — three lines fanning out at endpoint
+      drawCrowFoot(ctx, x1, y1, x2, y2); break;
+
+    case 'card_total':
+      // Double parallel line near endpoint
+      drawTotalParticipation(ctx, x1, y1, x2, y2); break;
+  }
+}
+
+function drawArrow(ctx, x1, y1, x2, y2) {
+  const headLen = 12 + drawStroke*2;
+  const angle = Math.atan2(y2-y1, x2-x1);
+  ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - headLen*Math.cos(angle-Math.PI/7), y2 - headLen*Math.sin(angle-Math.PI/7));
+  ctx.lineTo(x2 - headLen*Math.cos(angle+Math.PI/7), y2 - headLen*Math.sin(angle+Math.PI/7));
+  ctx.closePath();
+  ctx.fillStyle = drawColor;
+  ctx.fill();
+}
+
+function drawCrowFoot(ctx, x1, y1, x2, y2) {
+  const angle = Math.atan2(y2-y1, x2-x1);
+  const len = 16 + drawStroke*2;
+  // Main line
+  ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  // Three fork lines at endpoint
+  ctx.beginPath();
+  [-0.4, 0, 0.4].forEach(offset => {
+    const a = angle + Math.PI + offset;
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 + len*Math.cos(a), y2 + len*Math.sin(a));
+  });
+  ctx.stroke();
+}
+
+function drawTotalParticipation(ctx, x1, y1, x2, y2) {
+  const angle = Math.atan2(y2-y1, x2-x1);
+  const perp = angle + Math.PI/2;
+  const tickLen = 10 + drawStroke*2;
+  ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  // Two tick marks near endpoint
+  [14, 22].forEach(offset => {
+    const px = x2 - offset*Math.cos(angle);
+    const py = y2 - offset*Math.sin(angle);
+    ctx.beginPath();
+    ctx.moveTo(px + tickLen*Math.cos(perp), py + tickLen*Math.sin(perp));
+    ctx.lineTo(px - tickLen*Math.cos(perp), py - tickLen*Math.sin(perp));
+    ctx.stroke();
+  });
+}
+
+function placeTextInput(canvas, x, y) {
+  // Remove any existing overlay
+  const old = document.getElementById('canvasTextOverlay');
+  if (old) commitTextOverlay(canvas);
+
+  const wrap = document.getElementById('canvasWrap');
+  if (!wrap) return;
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = rect.width / canvas.width;
+  const scaleY = rect.height / canvas.height;
+
+  const inp = document.createElement('textarea');
+  inp.id = 'canvasTextOverlay';
+  inp.className = 'canvas-text-input-overlay';
+  inp.rows = 1;
+  inp.style.left = (x * scaleX + rect.left - wrap.getBoundingClientRect().left) + 'px';
+  inp.style.top  = (y * scaleY + rect.top  - wrap.getBoundingClientRect().top)  + 'px';
+  inp.style.color = drawColor;
+  inp.style.fontSize = (13 + drawStroke*1.5) + 'px';
+  wrap.style.position = 'relative';
+  wrap.appendChild(inp);
+  inp.focus();
+
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commitTextOverlay(canvas); }
+    if (e.key === 'Escape') { inp.remove(); }
+  });
+  inp.addEventListener('blur', () => setTimeout(() => commitTextOverlay(canvas), 150));
+}
+
+function commitTextOverlay(canvas) {
+  const inp = document.getElementById('canvasTextOverlay');
+  if (!inp) return;
+  const txt = inp.value.trim();
+  if (txt) {
+    const ctx = canvas.getContext('2d');
+    const wrap = document.getElementById('canvasWrap');
+    const cRect = canvas.getBoundingClientRect();
+    const wRect = wrap.getBoundingClientRect();
+    const iRect = inp.getBoundingClientRect();
+    const scaleX = canvas.width / cRect.width;
+    const scaleY = canvas.height / cRect.height;
+    const cx = (iRect.left - cRect.left) * scaleX;
+    const cy = (iRect.top  - cRect.top)  * scaleY + 14;
+    const fontSize = 13 + drawStroke*1.5;
+    ctx.font = `${fontSize}px 'Source Sans 3', sans-serif`;
+    ctx.fillStyle = drawColor;
+    txt.split('\n').forEach((line, i) => ctx.fillText(line, cx, cy + i * (fontSize+3)));
+    canvasHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    if (canvasHistory.length > 40) canvasHistory.shift();
+  }
+  inp.remove();
+}
+
+function setCanvasTool(tool) {
+  canvasTool = tool;
+  const toolIds = ['toolPen','toolLine','toolArrow','toolRect','toolEllipse','toolDiamond','toolDblRect','toolDblEllipse','toolOne','toolMany','toolCrowFoot','toolTotalPart','toolText','toolEraser'];
+  toolIds.forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('active'); });
+  const map = { pen:'toolPen', line:'toolLine', arrow:'toolArrow', rect:'toolRect', ellipse:'toolEllipse', diamond:'toolDiamond', dblrect:'toolDblRect', dblellipse:'toolDblEllipse', card_one:'toolOne', card_many:'toolMany', card_crow:'toolCrowFoot', card_total:'toolTotalPart', text:'toolText', eraser:'toolEraser' };
+  const target = document.getElementById(map[tool]);
+  if (target) target.classList.add('active');
+  const canvas = document.getElementById('quizCanvas');
+  if (canvas) canvas.style.cursor = tool === 'eraser' ? 'cell' : tool === 'text' ? 'text' : 'crosshair';
+}
+
+function setDrawColor(color, el) {
+  drawColor = color;
+  document.querySelectorAll('.canvas-color-swatch').forEach(s => s.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+function setStroke(size, el) {
+  drawStroke = size;
+  ['strokeThin','strokeMed','strokeThick'].forEach(id => { const b=document.getElementById(id); if(b) b.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+
+function canvasUndo() {
+  const canvas = document.getElementById('quizCanvas');
+  if (!canvas || canvasHistory.length <= 1) return;
+  canvasHistory.pop();
+  canvas.getContext('2d').putImageData(canvasHistory[canvasHistory.length-1], 0, 0);
+}
+
+function clearCanvas() {
+  const canvas = document.getElementById('quizCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvasHistory = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
+}
+
+// Legacy alias kept for backward compat
+function setTool(t) { setCanvasTool(t); }
+
+// ─────────────────────────────────────────────
+// API KEY MANAGEMENT
+// ─────────────────────────────────────────────
+let savedApiKey = '';
+
+function saveKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val.startsWith('sk-ant-')) {
+    document.getElementById('keyStatus').textContent = 'Warning: That doesn\'t look like a valid Anthropic key (should start with sk-ant-).';
+    document.getElementById('keyStatus').style.color = 'var(--accent)';
+    return;
+  }
+  savedApiKey = val;
+  document.getElementById('keyStatus').textContent = 'Key saved for this session. AI feedback is active.';
+  document.getElementById('keyStatus').style.color = '#2E7D32';
+  document.getElementById('apiKeyInput').value = '••••••••••••••••••••••••';
+}
+
+// ─────────────────────────────────────────────
+// AI FEEDBACK
+// ─────────────────────────────────────────────
+async function getAIFeedback(question, context, userAnswer, correctSolution) {
+  const systemPrompt = `You are a university database design tutor marking a student's exam answer. Be direct, specific, and constructive. Your response must follow this exact format:
+
+SCORE: [X/10]
+
+WHAT YOU GOT RIGHT:
+[List specific things the student correctly identified. If nothing, say "None identified."]
+
+WHAT YOU MISSED OR GOT WRONG:
+[List specific errors, gaps, or misconceptions. Reference the correct solution.]
+
+KEY TAKEAWAY:
+[One sentence the student should remember before the exam.]
+
+Keep the entire response under 200 words. Be honest — don't over-praise vague answers.`;
+
+  const userMsg = `QUESTION: ${question}
+${context ? `CONTEXT: ${context}` : ''}
+
+STUDENT'S ANSWER:
+${userAnswer || '[No written answer provided — student may have used the drawing canvas only]'}
+
+CORRECT SOLUTION (for reference):
+${correctSolution.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()}`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': savedApiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 400,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMsg }]
+    })
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API error ${resp.status}`);
+  }
+
+  const data = await resp.json();
+  return data.content[0].text;
+}
+
+function parseScore(feedbackText) {
+  const match = feedbackText.match(/SCORE:\s*(\d+)\s*\/\s*10/i);
+  if (!match) return null;
+  const n = parseInt(match[1]);
+  return n;
+}
+
+function scoreBadgeClass(n) {
+  if (n === null) return '';
+  if (n >= 7) return 'score-high';
+  if (n >= 4) return 'score-mid';
+  return 'score-low';
+}
+
+function formatFeedback(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/SCORE:.*$/m, '')
+    .replace(/WHAT YOU GOT RIGHT:/g, '<strong>What you got right:</strong>')
+    .replace(/WHAT YOU MISSED OR GOT WRONG:/g, '<strong>What you missed or got wrong:</strong>')
+    .replace(/KEY TAKEAWAY:/g, '<strong>Key takeaway:</strong>')
+    .trim();
+}
+
+async function submitQuizAnswer() {
+  quizAnsweredFlags[currentQuizIndex] = true;
+  const q = quizQuestions[currentQuizIndex];
+  const userAnswer = document.getElementById('quizTextAnswer')?.value?.trim() || '';
+  const solArea = document.getElementById('solutionArea');
+
+  document.querySelector('.quiz-submit').style.display = 'none';
+
+  // Always show the correct solution
+  solArea.innerHTML = `
+    <div class="solution-block">
+      <div class="solution-label">Correct Solution</div>
+      <div>${q.solution}</div>
+    </div>
+    <div class="ai-feedback-block" id="aiFeedbackBlock">
+      <div class="ai-feedback-header">
+        <span class="ai-feedback-badge">AI Feedback</span>
+      </div>
+      <div class="ai-loading" id="aiLoading">
+        <div class="ai-spinner"></div>
+        <span>Analysing your answer…</span>
+      </div>
+      <div class="ai-feedback-text" id="aiFeedbackText" style="display:none"></div>
+    </div>
+  `;
+
+  document.getElementById('quizNavRow').style.display = 'flex';
+
+  // If no key, show a prompt instead of calling the API
+  if (!savedApiKey) {
+    document.getElementById('aiLoading').style.display = 'none';
+    document.getElementById('aiFeedbackText').style.display = 'block';
+    document.getElementById('aiFeedbackText').innerHTML = '<span style="color:var(--mid-gray)">Enter your Anthropic API key above to get personalised AI feedback on your answers.</span>';
+    return;
+  }
+
+  try {
+    const feedback = await getAIFeedback(q.q, q.context || '', userAnswer, q.solution);
+    const score = parseScore(feedback);
+    const badgeClass = scoreBadgeClass(score);
+
+    document.getElementById('aiLoading').style.display = 'none';
+
+    const header = document.querySelector('#aiFeedbackBlock .ai-feedback-header');
+    if (score !== null) {
+      header.innerHTML = `<span class="ai-feedback-badge">AI Feedback</span><span class="ai-feedback-score ${badgeClass}">${score}/10</span>`;
+    }
+
+    const textEl = document.getElementById('aiFeedbackText');
+    textEl.style.display = 'block';
+    textEl.innerHTML = formatFeedback(feedback);
+  } catch (err) {
+    document.getElementById('aiLoading').style.display = 'none';
+    document.getElementById('aiFeedbackText').style.display = 'block';
+    document.getElementById('aiFeedbackText').innerHTML = `<span style="color:var(--accent)">Error: Could not get AI feedback: ${err.message}</span>`;
+  }
+}
+
+function nextQuizQuestion() {
+  currentQuizIndex++;
+  document.getElementById('quizProgressFill').style.width = Math.round((currentQuizIndex / quizQuestions.length) * 100) + '%';
+  renderQuizQuestion();
+  window.scrollTo(0, 0);
+}
+
+function finishQuiz() {
+  const answered = quizAnsweredFlags.filter(Boolean).length;
+  document.getElementById('resultScore').textContent = `${answered}/${quizQuestions.length}`;
+  document.getElementById('resultSub').textContent = `You reviewed all ${quizQuestions.length} questions on ${TOPIC_NAMES[currentTopic]}. Go through the solutions again if anything was unclear, then revisit the Theory mode for reinforcement.`;
+  navigate('resultScreen');
+}
+
+function restartQuiz() {
+  buildQuiz();
+}
+
+// Prevent back btn on landing
+document.getElementById('backBtn').onclick = goBack;
+</script>
+</body>
+</html>
